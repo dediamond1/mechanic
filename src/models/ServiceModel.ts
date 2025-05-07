@@ -2,20 +2,41 @@ import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
-const serviceSchema = new Schema(
+const partItemSchema = new Schema({
+  name: { type: String, required: true },
+  partNumber: { type: String, required: true },
+  condition: {
+    type: String,
+    enum: ['new', 'used', 'refurbished'],
+    default: 'new',
+  },
+  price: { type: Number, required: true },
+  quantity: { type: Number, default: 1 },
+});
+
+const serviceRecordSchema = new Schema(
   {
-    name: { type: String, required: true, trim: true },
-    description: { type: String, trim: true },
-    price: { type: Number, required: true, min: 0 },
-    category: {
-      type: String,
-      enum: ['Engine', 'Tires', 'Brakes', 'Electrical', 'General'],
-      default: 'General',
+    appointment: {
+      type: Schema.Types.ObjectId,
+      ref: 'Appointment',
+      required: true,
     },
-    isActive: { type: Boolean, default: true },
+    vehicle: {
+      type: Schema.Types.ObjectId,
+      ref: 'Vehicle',
+      required: true,
+    },
+    description: { type: String },
+    partsUsed: [partItemSchema],
+    laborCost: { type: Number, required: true },
+    totalCost: { type: Number, required: true },
+    status: {
+      type: String,
+      enum: ['pending', 'in_progress', 'completed'],
+      default: 'pending',
+    },
   },
   { timestamps: true }
 );
 
-const Service = mongoose.model('Service', serviceSchema);
-export default Service;
+export default mongoose.model('Service', serviceRecordSchema);
